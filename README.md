@@ -40,17 +40,13 @@ The Clothes E-commerce Platform is a comprehensive solution for managing an onli
 ### Backend
 1. Clone the repository
     ```bash
-    git clone https://github.com/yourusername/clothes-ecommerce-backend.git
+    git clone https://github.com/yourusername/golang-clothes-ecommerce.git
     ```
-2. Navigate to the backend directory
-    ```bash
-    cd clothes-ecommerce-backend
-    ```
-3. Install dependencies
+2. Install dependencies
     ```bash
     go mod download
     ```
-4. Set up environment variables (create a `.env` file)
+3. Set up environment variables (create a `.env` file)
     ```
     DB_HOST=your_database_host
     DB_PORT=your_database_port
@@ -60,6 +56,10 @@ The Clothes E-commerce Platform is a comprehensive solution for managing an onli
     JWT_SECRET=your_jwt_secret
     STRIPE_SECRET_KEY=your_stripe_secret_key
     ```
+4. Navigate to the backend directory
+    ```bash
+    cd cmd/api
+    ```
 5. Run the server
     ```bash
     go run main.go
@@ -68,11 +68,11 @@ The Clothes E-commerce Platform is a comprehensive solution for managing an onli
 ### Frontend
 1. Clone the repository
     ```bash
-    git clone https://github.com/yourusername/clothes-ecommerce-frontend.git
+    git clone https://github.com/yourusername/golang-clothes-ecommerce.git
     ```
 2. Navigate to the frontend directory
     ```bash
-    cd clothes-ecommerce-frontend
+    cd web
     ```
 3. Install dependencies
     ```bash
@@ -88,8 +88,8 @@ The Clothes E-commerce Platform is a comprehensive solution for managing an onli
     ```
 
 ## Usage
-- Navigate to `http://localhost:3000` to access the frontend.
-- Use the admin panel at `http://localhost:3000/admin` to manage the store.
+- Navigate to `http://localhost:5173` to access the frontend.
+- Use the admin panel at `http://localhost:5173/admin` to manage the store.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit a pull request for any feature addition or bug fix.
@@ -98,7 +98,7 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
-- Name: Your Name
-- Email: your-email@example.com
-- GitHub: [yourusername](https://github.com/TechmoNoway/golang-clothes-ecommerce)
+- Name: Nguyen Tri Ky
+- Email: nguyentriky0604@gmail.com
+- GitHub: [TechmoNoway](https://github.com/TechmoNoway/golang-clothes-ecommerce)
 

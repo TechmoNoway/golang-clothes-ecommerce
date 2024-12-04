@@ -18,7 +18,7 @@ func main() {
 			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/clothesecommerce?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
-			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15min"),
+			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
 	}
 
@@ -35,6 +35,9 @@ func main() {
 		log.Panic(err)
 	}
 
+	defer db.Close()
+	log.Print("database connection pool established")
+
 	app := &application{
 		config: cfg,
 		store:  store,
@@ -43,4 +46,7 @@ func main() {
 	mux := app.mount()
 	log.Fatal(app.run(mux))
 
+	// migrate create -seq -ext sql -dir ./cmd/migrate/migrations  create_users
+	// migrate -path cmd/migrate/migrations -database postgres://admin:adminpassword@localhost/clothesecommerce?sslmode=disable up
+	// make migration create_posts
 }

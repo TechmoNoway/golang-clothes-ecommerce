@@ -1,1 +1,2 @@
 CREATE DATABASE clothesecommerce;
+-- CREATE EXTENSION IF NOT EXISTS citext;
