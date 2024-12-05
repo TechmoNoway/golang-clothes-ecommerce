@@ -8,11 +8,13 @@ import (
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 )
 
 type application struct {
 	config config
 	store  store.Storage
+	logger *zap.SugaredLogger
 }
 
 type config struct {
@@ -39,6 +41,11 @@ func (app *application) mount() *chi.Mux {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHanler)
+		r.Route("/users", func(r chi.Router) {
+			r.Route("/{userID}", func(r chi.Router) {
+				r.Get("/", app.getUserHandler)
+			})
+		})
 	})
 
 	return r

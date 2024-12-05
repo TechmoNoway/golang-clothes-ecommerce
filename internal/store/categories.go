@@ -23,10 +23,10 @@ func (s *CategoryStorage) create(ctx context.Context, category *Category) error 
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
-		&category.CategoryName,
+		category.CategoryName,
 	).Scan(
 		&category.ID,
-		&category,
+		&category.CreatedAt,
 	)
 	if err != nil {
 		return err

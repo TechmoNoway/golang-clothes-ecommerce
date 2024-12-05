@@ -9,8 +9,8 @@ type Product struct {
 	ID          int64  `json:"id"`
 	ProductName string `json:"product_name"`
 	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
+	Price       int64  `json:"price"`
+	Stock       int64  `json:"stock"`
 	Size        string `json:"size"`
 	Color       string `json:"color"`
 	CreatedAt   string `json:"created_at"`
@@ -27,12 +27,12 @@ func (s *ProductStore) create(ctx context.Context, product *Product) error {
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
-		&product.ProductName,
-		&product.Description,
-		&product.Price,
-		&product.Stock,
-		&product.Size,
-		&product.Color,
+		product.ProductName,
+		product.Description,
+		product.Price,
+		product.Stock,
+		product.Size,
+		product.Color,
 	).Scan(
 		&product.ID,
 		&product.CreatedAt,

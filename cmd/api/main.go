@@ -46,7 +46,5 @@ func main() {
 	mux := app.mount()
 	log.Fatal(app.run(mux))
 
-	// migrate create -seq -ext sql -dir ./cmd/migrate/migrations  create_users
-	// migrate -path cmd/migrate/migrations -database postgres://admin:adminpassword@localhost/clothesecommerce?sslmode=disable up
-	// make migration create_posts
+
 }

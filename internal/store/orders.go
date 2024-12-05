@@ -8,7 +8,7 @@ import (
 type Order struct {
 	ID         int64  `json:"id"`
 	UserID     int64  `json:"user_id"`
-	TotalPrice int    `json:"total_price"`
+	TotalPrice int64  `json:"total_price"`
 	Status     string `json:"status"`
 	CreatedAt  string `json:"created_at"`
 }
@@ -23,9 +23,9 @@ func (s *OrderStore) create(ctx context.Context, order *Order) error {
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
-		&order.UserID,
-		&order.TotalPrice,
-		&order.Status,
+		order.UserID,
+		order.TotalPrice,
+		order.Status,
 	).Scan(
 		&order.ID,
 		&order.CreatedAt,
