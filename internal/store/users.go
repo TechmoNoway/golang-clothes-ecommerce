@@ -4,32 +4,29 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	ID        int64    `json:"id"`
-	Username  string   `json:"username"`
-	Email     string   `json:"email"`
-	Password  password `json:"-"`
-	AvatarUrl string   `json:"avatar_url"`
-	FirstName string   `json:"first_name"`
-	LastName  string   `json:"last_name"`
-	Phone     string   `json:"phone"`
-	Address   string   `json:"address"`
-	RoleID    int64    `json:"role_id"`
-	Role      Role     `json:"role"`
-	CreatedAt string   `json:"created_at"`
+	ID        int64  `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Password  string `json:"-"`
+	AvatarUrl string `json:"avatar_url"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	RoleID    int64  `json:"role_id"`
+	Role      Role   `json:"role"`
+	CreatedAt string `json:"created_at"`
 }
 
 var (
 	ErrDuplicateEmail    = errors.New("a user with that email already exists")
 	ErrDuplicateUsername = errors.New("a user with that username already exists")
 )
-
-type password struct {
-	text *string
-	hash []byte
-}
 
 type UserStore struct {
 	db *sql.DB
@@ -38,29 +35,36 @@ type UserStore struct {
 func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 	query := `
 		INSERT INTO users (username, email, password, avatar_url, first_name, last_name, phone, address, role_id) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT id FROM roles WHERE name = $4))
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		RETURNING id, created_at
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	role := user.Role.Name
-	if role == "" {
-		role = "user"
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
 	}
 
-	err := s.db.QueryRowContext(
+	var userRole int
+	role := user.Role.Name
+	if role == "user" || role == "" {
+		userRole = 1
+	}
+
+	err = s.db.QueryRowContext(
 		ctx,
 		query,
 		user.Username,
 		user.Email,
-		user.Password.hash,
+		hash,
 		user.AvatarUrl,
 		user.FirstName,
 		user.LastName,
 		user.Phone,
 		user.Address,
-		role,
+		userRole,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -122,7 +126,7 @@ func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
 	query := `
 		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
-		JOIN roles ON (users.role.id = roles.id) 
+		JOIN roles ON (users.role_id = roles.id) 
 		WHERE 1 = 1
 	`
 
@@ -145,6 +149,7 @@ func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
 			&newUser.Username,
 			&newUser.Email,
 			&newUser.Password,
+			&newUser.AvatarUrl,
 			&newUser.FirstName,
 			&newUser.LastName,
 			&newUser.Phone,

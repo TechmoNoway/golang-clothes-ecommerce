@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	QueryTimeoutDuration = time.Second * 5
+	QueryTimeoutDuration = time.Second * 100
 	ErrNotFound          = errors.New("resource not found")
 )
 
@@ -19,6 +19,11 @@ type Storage struct {
 	Users interface {
 		Create(context.Context, *sql.Tx, *User) error
 		GetById(context.Context, int64) (*User, error)
+		GetAll(context.Context) ([]User, error)
+	}
+	Roles interface {
+		Create(context.Context, *sql.Tx, *Role) error
+		GetByName(context.Context, string) (*Role, error)
 	}
 }
 

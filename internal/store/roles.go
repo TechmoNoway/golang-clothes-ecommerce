@@ -16,6 +16,31 @@ type RoleStore struct {
 	db *sql.DB
 }
 
+func (s *RoleStore) Create(ctx context.Context, Tx *sql.Tx, role *Role) error {
+	query := `
+		INSERT INTO roles (name, description, level)
+		VALUES ($1, $2, $3)
+		RETURNING id
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+
+	defer cancel()
+
+	err := Tx.QueryRowContext(
+		ctx,
+		query,
+		role.Name,
+		role.Description,
+		role.Level,
+	).Scan(&role.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *RoleStore) GetByName(ctx context.Context, slug string) (*Role, error) {
 	query := `
 		SELECT id, name, description, level 

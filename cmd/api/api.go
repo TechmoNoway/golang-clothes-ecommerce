@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -40,11 +41,17 @@ func (app *application) mount() *chi.Mux {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/v1", func(r chi.Router) {
+
 		r.Get("/health", app.healthCheckHanler)
 		r.Route("/users", func(r chi.Router) {
-			r.Route("/{userID}", func(r chi.Router) {
-				r.Get("/", app.getUserHandler)
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintln(w, "Hello")
 			})
+			// r.Route("/{userID}", func(r chi.Router) {
+			// 	r.Get("/", app.getUserHandler)
+			// })
+			r.Get("/getAllUsers", app.getAllUsersHandler)
+
 		})
 	})
 
