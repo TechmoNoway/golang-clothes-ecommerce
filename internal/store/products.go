@@ -13,6 +13,7 @@ type Product struct {
 	Stock       int64  `json:"stock"`
 	Size        string `json:"size"`
 	Color       string `json:"color"`
+	CategoryID  int64  `json:"category_id"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }

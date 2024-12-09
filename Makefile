@@ -1,10 +1,9 @@
-MIGRATIONS_PATH = cmd/migrate/migrations
-MIGRATIONS_DIR = cmd/migrate/migrations
 include .env
+MIGRATIONS_PATH = cmd/migrate/migrations
 
 .PHONY: migrate-create
 migration:
-	@migrate create -seq -ext sql -dir $(MIGRATIONS_DIR) $(filter-out $@,$(MAKECMDGOALS))
+	@migrate create -seq -ext sql -dir $(MIGRATIONS_PATH) $(filter-out $@,$(MAKECMDGOALS))
 
 .PHONY: migrate-up
 migrate-up:
@@ -17,4 +16,6 @@ migrate-down:
 .PHONY: seed
 seed: 
 	@go run cmd/migrate/seed/main.go
-	
+
+.PHONY: migrate-clean
+	@migrate -path $(MIGRATIONS_PATH) -database $(DB_ADDR) force 2

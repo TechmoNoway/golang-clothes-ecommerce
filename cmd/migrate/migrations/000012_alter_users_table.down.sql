@@ -1,0 +1,1 @@
+ALTER TABLE users DROP CONSTRAINT fk_role_id;

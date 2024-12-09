@@ -1,8 +1,0 @@
-CREATE TABLE orders (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id) NOT NULL,
-    product_id BIGINT REFERENCES products(id) NOT NULL,
-    quantity INTEGER NOT NULL,
-    price INTEGER PRECISION NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
