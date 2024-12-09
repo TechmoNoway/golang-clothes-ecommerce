@@ -44,3 +44,85 @@ func (s *ProductStore) create(ctx context.Context, product *Product) error {
 
 	return nil
 }
+
+func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
+
+	query := `
+		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		FROM products
+		WHERE 1 = 1 
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productList []Product
+
+	for rows.Next() {
+		var product Product
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&product.Description,
+			&product.Price,
+			&product.Stock,
+			&product.Size,
+			&product.Color,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		productList = append(productList, product)
+	}
+
+	return productList, err
+
+}
+
+func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, error) {
+	query := `
+		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		FROM products
+		WHERE id = $1 
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	product := &Product{}
+
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		productID,
+	).Scan(
+		&product.ID,
+		&product.ProductName,
+		&product.Description,
+		&product.Price,
+		&product.Stock,
+		&product.Size,
+		&product.Color,
+		&product.CreatedAt,
+		&product.UpdatedAt,
+	)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return product, err
+}

@@ -11,6 +11,7 @@ type User struct {
 	Username  string   `json:"username"`
 	Email     string   `json:"email"`
 	Password  password `json:"-"`
+	AvatarUrl string   `json:"avatar_url"`
 	FirstName string   `json:"first_name"`
 	LastName  string   `json:"last_name"`
 	Phone     string   `json:"phone"`
@@ -36,7 +37,7 @@ type UserStore struct {
 
 func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 	query := `
-		INSERT INTO users (username, email, password, first_name, last_name, phone, address, role_id) 
+		INSERT INTO users (username, email, password, avatar_url, first_name, last_name, phone, address, role_id) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, (SELECT id FROM roles WHERE name = $4))
 	`
 
@@ -54,6 +55,7 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		user.Username,
 		user.Email,
 		user.Password.hash,
+		user.AvatarUrl,
 		user.FirstName,
 		user.LastName,
 		user.Phone,
@@ -72,7 +74,7 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 
 func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 	query := `
-		SELECT users.id, username, email, password, created_at, roles.*
+		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
 		JOIN roles ON (users.role.id = roles.id) 
 		WHERE users.id = $1
@@ -91,6 +93,7 @@ func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 		&user.Username,
 		&user.Email,
 		&user.Password,
+		&user.AvatarUrl,
 		&user.FirstName,
 		&user.LastName,
 		&user.Phone,
@@ -112,4 +115,84 @@ func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 
 	return user, nil
 
+}
+
+func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
+
+	query := `
+		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
+		FROM users
+		JOIN roles ON (users.role.id = roles.id) 
+		WHERE 1 = 1
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+
+	defer cancel()
+
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var userList []User
+	for rows.Next() {
+		var newUser User
+		err := rows.Scan(
+			&newUser.ID,
+			&newUser.Username,
+			&newUser.Email,
+			&newUser.Password,
+			&newUser.FirstName,
+			&newUser.LastName,
+			&newUser.Phone,
+			&newUser.Address,
+			&newUser.CreatedAt,
+			&newUser.Role.ID,
+			&newUser.Role.Name,
+			&newUser.Role.Description,
+			&newUser.Role.Level,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		userList = append(userList, newUser)
+	}
+
+	return userList, nil
+}
+
+func (s *UserStore) DeleteByID(ctx context.Context, tx *sql.Tx, userID int64) error {
+	query := `DELETE FROM users WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := s.db.ExecContext(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserStore) Update(ctx context.Context, tx *sql.Tx, user *User) error {
+	query := `
+	UPDATE users SET username, email, password, avatar_url, first_name, last_name, phone, address 
+	SET username = $1, email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+
+	defer cancel()
+
+	_, err := s.db.ExecContext(ctx, query, user.Username, user.Email, user.AvatarUrl, user.FirstName, user.LastName, user.Phone, user.Address)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
