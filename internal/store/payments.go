@@ -10,7 +10,7 @@ type Payment struct {
 	OrderID       int64  `json:"order_id"`
 	PaymentMethod string `json:"payment_method"`
 	Status        string `json:"status"`
-	PaymentDate   string `json:payment_date`
+	PaymentDate   string `json:"payment_date"`
 }
 
 type PaymentStore struct {
