@@ -17,7 +17,7 @@ type OrderStore struct {
 	db *sql.DB
 }
 
-func (s *OrderStore) create(ctx context.Context, order *Order) error {
+func (s *OrderStore) Create(ctx context.Context, tx *sql.Tx, order *Order) error {
 	query := `INSERT INTO orders (user_id, total_price, status) VALUES ($1, $2, $3)`
 
 	err := s.db.QueryRowContext(

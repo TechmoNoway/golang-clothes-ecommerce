@@ -22,7 +22,7 @@ type ProductStore struct {
 	db *sql.DB
 }
 
-func (s *ProductStore) create(ctx context.Context, product *Product) error {
+func (s *ProductStore) Create(ctx context.Context, tx *sql.Tx, product *Product) error {
 	query := `INSERT INTO products (product_name, description, price, stock, size, color) VALUES ($1, $2, $3, $4, $5, $6)`
 
 	err := s.db.QueryRowContext(
@@ -126,4 +126,62 @@ func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, 
 	}
 
 	return product, err
+}
+
+func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]Product, error) {
+	query := `
+		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		FROM products
+		WHERE product_name ILIKE $1
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	productName = "%" + productName + "%"
+
+	rows, err := s.db.QueryContext(ctx, query, productName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productList []Product
+
+	for rows.Next() {
+		var product Product
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&product.Description,
+			&product.Price,
+			&product.Stock,
+			&product.Size,
+			&product.Color,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		productList = append(productList, product)
+
+	}
+
+	return productList, err
+}
+
+func (s *ProductStore) Delete(ctx context.Context, productID int64) error {
+	query := `
+		DELETE FROM products WHERE product_name = $1
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	_, err := s.db.ExecContext(ctx, query, productID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

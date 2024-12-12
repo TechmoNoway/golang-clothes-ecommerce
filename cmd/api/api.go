@@ -40,18 +40,34 @@ func (app *application) mount() *chi.Mux {
 
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Route("/v1", func(r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/v1", func(r chi.Router) {
+			r.Get("/health", app.healthCheckHanler)
+			r.Route("/users", func(r chi.Router) {
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprintln(w, "Hello")
+				})
+				r.Route("/getUserById/{userID}", func(r chi.Router) {
+					r.Get("/", app.getUserHandler)
+				})
+				r.Get("/getAllUsers", app.getAllUsersHandler)
 
-		r.Get("/health", app.healthCheckHanler)
-		r.Route("/users", func(r chi.Router) {
-			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				fmt.Fprintln(w, "Hello")
 			})
-			// r.Route("/{userID}", func(r chi.Router) {
-			// 	r.Get("/", app.getUserHandler)
-			// })
-			r.Get("/getAllUsers", app.getAllUsersHandler)
-
+			r.Route("/roles", func(r chi.Router) {
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprintln(w, "This is roles api")
+				})
+			})
+			r.Route("/products", func(r chi.Router) {
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprintln(w, "This is products api")
+				})
+			})
+			r.Route("/orders", func(r chi.Router) {
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+					fmt.Fprintln(w, "This is orders api")
+				})
+			})
 		})
 	})
 
