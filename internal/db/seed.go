@@ -59,20 +59,26 @@ var productCategoryIds = []int64{
 func Seed(store store.Storage, db *sql.DB) {
 	ctx := context.Background()
 
-	// roles := generateRoles(2)
+	tables := []string{"users", "categories", "products", "roles"}
+	for _, table := range tables {
+		_, err := db.ExecContext(ctx, fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", table))
+		if err != nil {
+			log.Println("Error truncating table:", table, err)
+			return
+		}
+	}
+
+	roles := generateRoles(2)
+	for _, role := range roles {
+		err := store.Roles.Create(ctx, role)
+		if err != nil {
+			log.Println("Error creating role:", err)
+			return
+		}
+	}
 
 	users := generateUsers(5)
-
 	tx, _ := db.BeginTx(ctx, nil)
-
-	// for _, role := range roles {
-	// 	err := store.Roles.Create(ctx, tx, role)
-	// 	if err != nil {
-	// 		_ = tx.Rollback()
-	// 		log.Println("Error creating role:", err)
-	// 		return
-	// 	}
-	// }
 
 	for _, user := range users {
 		err := store.Users.Create(ctx, tx, user)
@@ -81,10 +87,27 @@ func Seed(store store.Storage, db *sql.DB) {
 			log.Println("Error creating user:", err)
 			return
 		}
-
 	}
 
 	tx.Commit()
+
+	categories := generateCategories(10)
+	for _, category := range categories {
+		err := store.Categories.Create(ctx, category)
+		if err != nil {
+			log.Println("Error creating category:", err)
+			return
+		}
+	}
+
+	products := generateProducts(10)
+	for _, product := range products {
+		err := store.Products.Create(ctx, product)
+		if err != nil {
+			log.Println("Error creating product:", err)
+			return
+		}
+	}
 
 	log.Println("Seeding complete")
 }

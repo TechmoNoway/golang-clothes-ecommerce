@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
 )
@@ -23,8 +22,6 @@ func (app *application) getAllUsers(ctx context.Context) ([]store.User, error) {
 		return nil, err
 	}
 
-	fmt.Println(users)
-
 	return users, nil
 }
 
@@ -37,8 +34,13 @@ func (app *application) deleteUser(ctx context.Context) error {
 }
 
 // Products
-func (app *application) getAllProducts(ctx context.Context) error {
-	return nil
+func (app *application) getAllProducts(ctx context.Context) ([]store.Product, error) {
+	products, err := app.store.Products.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
 
 func (app *application) getProductsByName(ctx context.Context) ([]store.Product, error) {

@@ -16,7 +16,7 @@ type RoleStore struct {
 	db *sql.DB
 }
 
-func (s *RoleStore) Create(ctx context.Context, tx *sql.Tx, role *Role) error {
+func (s *RoleStore) Create(ctx context.Context, role *Role) error {
 	query := `
 		INSERT INTO roles (name, description, level)
 		VALUES ($1, $2, $3)
@@ -27,7 +27,7 @@ func (s *RoleStore) Create(ctx context.Context, tx *sql.Tx, role *Role) error {
 
 	defer cancel()
 
-	err := tx.QueryRowContext(
+	err := s.db.QueryRowContext(
 		ctx,
 		query,
 		role.Name,

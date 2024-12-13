@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -39,8 +40,8 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		RETURNING id, created_at
 	`
 
-	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	// defer cancel()
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -70,6 +71,7 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		&user.CreatedAt,
 	)
 	if err != nil {
+		fmt.Println("db error")
 		return err
 	}
 

@@ -11,13 +11,14 @@ type Category struct {
 	CreatedAt    string `json:"created_at"`
 }
 
-type CategoryStorage struct {
+type CategoryStore struct {
 	db *sql.DB
 }
 
-func (s *CategoryStorage) create(ctx context.Context, category *Category) error {
+func (s *CategoryStore) Create(ctx context.Context, category *Category) error {
 	query := `
 		INSERT INTO categories(category_name) VALUES ($1)
+		RETURNING id, created_at
 	`
 
 	err := s.db.QueryRowContext(

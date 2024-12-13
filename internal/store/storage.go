@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	QueryTimeoutDuration = time.Second * 100
+	QueryTimeoutDuration = time.Second * 5
 	ErrNotFound          = errors.New("resource not found")
 )
 
@@ -22,28 +22,32 @@ type Storage struct {
 		GetAll(context.Context) ([]User, error)
 	}
 	Roles interface {
-		Create(context.Context, *sql.Tx, *Role) error
+		Create(context.Context, *Role) error
 		GetByName(context.Context, string) (*Role, error)
 		Delete(context.Context, *sql.Tx, int64) error
 	}
+	Categories interface {
+		Create(context.Context, *Category) error
+	}
 	Products interface {
-		Create(context.Context, *sql.Tx, *Product) error
+		Create(context.Context, *Product) error
 		GetAll(context.Context) ([]Product, error)
 		GetById(context.Context, int64) (*Product, error)
 		GetAllByName(context.Context, string) ([]Product, error)
 		Delete(context.Context, int64) error
 	}
 	Orders interface {
-		Create(context.Context, *sql.Tx, *Order) error
+		Create(context.Context, *Order) error
 	}
 }
 
 func NewStorage(db *sql.DB) Storage {
 	return Storage{
-		Posts:    &PostStore{db},
-		Users:    &UserStore{db},
-		Roles:    &RoleStore{db},
-		Products: &ProductStore{db},
-		Orders:   &OrderStore{db},
+		Posts:      &PostStore{db},
+		Users:      &UserStore{db},
+		Roles:      &RoleStore{db},
+		Products:   &ProductStore{db},
+		Orders:     &OrderStore{db},
+		Categories: &CategoryStore{db},
 	}
 }

@@ -22,8 +22,11 @@ type ProductStore struct {
 	db *sql.DB
 }
 
-func (s *ProductStore) Create(ctx context.Context, tx *sql.Tx, product *Product) error {
-	query := `INSERT INTO products (product_name, description, price, stock, size, color) VALUES ($1, $2, $3, $4, $5, $6)`
+func (s *ProductStore) Create(ctx context.Context, product *Product) error {
+	query := `
+	INSERT INTO products (product_name, description, price, stock, size, color, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7)
+	RETURNING id, created_at, updated_at
+	`
 
 	err := s.db.QueryRowContext(
 		ctx,
@@ -34,6 +37,7 @@ func (s *ProductStore) Create(ctx context.Context, tx *sql.Tx, product *Product)
 		product.Stock,
 		product.Size,
 		product.Color,
+		product.CategoryID,
 	).Scan(
 		&product.ID,
 		&product.CreatedAt,

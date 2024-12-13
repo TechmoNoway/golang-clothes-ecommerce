@@ -18,7 +18,7 @@ type OrderItemStore struct {
 	db *sql.DB
 }
 
-func (s *OrderItemStore) create(ctx context.Context, orderItem *OrderItem) error {
+func (s *OrderItemStore) Create(ctx context.Context, orderItem *OrderItem) error {
 
 	query := `
         INSERT INTO order_items (order_id, product_id, quantity, price)

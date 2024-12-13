@@ -53,16 +53,20 @@ func (app *application) mount() *chi.Mux {
 				r.Get("/getAllUsers", app.getAllUsersHandler)
 
 			})
+
 			r.Route("/roles", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintln(w, "This is roles api")
 				})
 			})
+
 			r.Route("/products", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintln(w, "This is products api")
 				})
+				r.Get("/getAllProducts", app.getAllProductsHanler)
 			})
+
 			r.Route("/orders", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintln(w, "This is orders api")
