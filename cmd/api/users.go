@@ -54,3 +54,16 @@ func (app *application) getAllUsersHandler(w http.ResponseWriter, r *http.Reques
 		app.internalServerError(w, r, err)
 	}
 }
+
+func (app *application) createUserHanler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (app *application) updateUserHanler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func getUserFromContext(r *http.Request) *store.User {
+	user, _ := r.Context().Value(userCtx).(*store.User)
+	return user
+}

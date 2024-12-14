@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 )
 
 type Product struct {
@@ -185,6 +186,40 @@ func (s *ProductStore) Delete(ctx context.Context, productID int64) error {
 	_, err := s.db.ExecContext(ctx, query, productID)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (s *ProductStore) Update(ctx context.Context, product *Product) error {
+	query := `
+		UPDATE products
+		SET product_name = $2, description = $3, price = $4, stock = $5, size = $6,
+		color = $7, category_id = $8
+		WHERE id = $1
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		product.ID,
+		product.ProductName,
+		product.Description,
+		product.Price,
+		product.Stock,
+		product.Size,
+		product.Color,
+		product.CategoryID,
+	).Scan()
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrNotFound
+		default:
+			return err
+		}
 	}
 
 	return nil

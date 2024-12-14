@@ -73,6 +73,8 @@ func (app *application) mount() *chi.Mux {
 					fmt.Fprintln(w, "This is products api")
 				})
 				r.Get("/getAllProducts", app.getAllProductsHanler)
+				r.Post("/createProduct", app.createProductHanler)
+				r.Post("/updateProduct", app.updateProductHanler)
 			})
 
 			r.Route("/orders", func(r chi.Router) {

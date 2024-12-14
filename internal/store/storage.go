@@ -35,6 +35,7 @@ type Storage struct {
 		GetById(context.Context, int64) (*Product, error)
 		GetAllByName(context.Context, string) ([]Product, error)
 		Delete(context.Context, int64) error
+		Update(context.Context, *Product) error
 	}
 	Orders interface {
 		Create(context.Context, *Order) error
