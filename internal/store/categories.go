@@ -35,3 +35,36 @@ func (s *CategoryStore) Create(ctx context.Context, category *Category) error {
 
 	return nil
 }
+
+func (s *CategoryStore) GetAll(ctx context.Context) ([]Category, error) {
+	query := `
+		SELECT id, category_name 
+		FROM categories
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var categories []Category
+
+	for rows.Next() {
+		var category Category
+
+		err := rows.Scan(
+			&category.ID,
+			&category.CategoryName,
+		)
+		if err != nil {
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
+}

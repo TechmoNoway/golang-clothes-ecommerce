@@ -82,6 +82,14 @@ func (app *application) mount() *chi.Mux {
 					fmt.Fprintln(w, "This is orders api")
 				})
 			})
+
+			r.Route("/authentication", func(r chi.Router) {
+
+			})
+
+			r.Route("/categories", func(r chi.Router) {
+				
+			})
 		})
 	})
 

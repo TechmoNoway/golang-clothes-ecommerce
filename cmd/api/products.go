@@ -11,16 +11,6 @@ type productKey string
 
 const productCtx productKey = "product"
 
-type CreateProductPayload struct {
-	ProductName string `json:"product_name" validate:"required,max=100"`
-	Description string `json:"content" validate:"required,max=1000"`
-	Price       int64  `json:"price" validate:"required"`
-	Stock       int64  `json:"stock"`
-	Size        string `json:"size"`
-	Color       string `json:"color"`
-	CategoryID  int64  `json:"category_id"`
-}
-
 func (app *application) getAllProductsHanler(w http.ResponseWriter, r *http.Request) {
 	products, err := app.store.Products.GetAll(r.Context())
 	if err != nil {
@@ -39,6 +29,16 @@ func (app *application) getAllProductsHanler(w http.ResponseWriter, r *http.Requ
 		app.internalServerError(w, r, err)
 	}
 
+}
+
+type CreateProductPayload struct {
+	ProductName string `json:"product_name" validate:"required,max=100"`
+	Description string `json:"content" validate:"required,max=1000"`
+	Price       int64  `json:"price" validate:"required"`
+	Stock       int64  `json:"stock"`
+	Size        string `json:"size"`
+	Color       string `json:"color"`
+	CategoryID  int64  `json:"category_id"`
 }
 
 func (app *application) createProductHanler(w http.ResponseWriter, r *http.Request) {
