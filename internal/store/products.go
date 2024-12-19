@@ -54,7 +54,7 @@ func (s *ProductStore) Create(ctx context.Context, product *Product) error {
 func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
 		FROM products
 		WHERE 1 = 1 
 	`
@@ -81,6 +81,7 @@ func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 			&product.Stock,
 			&product.Size,
 			&product.Color,
+			&product.CategoryID,
 			&product.CreatedAt,
 			&product.UpdatedAt,
 		)
@@ -96,7 +97,7 @@ func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 
 func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, error) {
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		SELECT id, product_name, description, price, stock, size, color, category_id,created_at, updated_at 
 		FROM products
 		WHERE id = $1 
 	`
@@ -118,6 +119,7 @@ func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, 
 		&product.Stock,
 		&product.Size,
 		&product.Color,
+		&product.CategoryID,
 		&product.CreatedAt,
 		&product.UpdatedAt,
 	)
@@ -135,7 +137,7 @@ func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, 
 
 func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]Product, error) {
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, created_at, updated_at 
+		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
 		FROM products
 		WHERE product_name ILIKE $1
 	`
@@ -174,6 +176,51 @@ func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]
 	}
 
 	return productList, err
+}
+
+func (s *ProductStore) GetAllByCategoryID(ctx context.Context, categoryID int64) ([]Product, error) {
+	query := `
+		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
+		FROM products p
+		WHERE category_id = $1 
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(ctx, query, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows.Close()
+
+	var productList []Product
+
+	for rows.Next() {
+		var product Product
+
+		err := rows.Scan(
+			&product.ID,
+			&product.ProductName,
+			&product.Description,
+			&product.Price,
+			&product.Stock,
+			&product.Size,
+			&product.Color,
+			&product.CategoryID,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		productList = append(productList, product)
+
+	}
+
+	return productList, nil
 }
 
 func (s *ProductStore) Delete(ctx context.Context, productID int64) error {

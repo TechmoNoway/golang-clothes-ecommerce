@@ -51,10 +51,8 @@ func (app *application) mount() *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Get("/health", app.healthCheckHanler)
+
 			r.Route("/users", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					fmt.Fprintln(w, "Hello")
-				})
 				r.Route("/getUserById/{userID}", func(r chi.Router) {
 					r.Get("/", app.getUserHandler)
 				})
@@ -73,6 +71,12 @@ func (app *application) mount() *chi.Mux {
 					fmt.Fprintln(w, "This is products api")
 				})
 				r.Get("/getAllProducts", app.getAllProductsHanler)
+				r.Route("/getAllProductsByName/{name}", func(r chi.Router) {
+					r.Get("/", app.getAllProductsByNameHanler)
+				})
+				r.Route("/getAllProductsByCategoryID/{categoryID}", func(r chi.Router) {
+					r.Get("/", app.getAllProductsByCategoryIDHanler)
+				})
 				r.Post("/createProduct", app.createProductHanler)
 				r.Post("/updateProduct", app.updateProductHanler)
 			})
@@ -83,13 +87,14 @@ func (app *application) mount() *chi.Mux {
 				})
 			})
 
+			r.Route("/categories", func(r chi.Router) {
+
+			})
+
 			r.Route("/authentication", func(r chi.Router) {
 
 			})
 
-			r.Route("/categories", func(r chi.Router) {
-				
-			})
 		})
 	})
 

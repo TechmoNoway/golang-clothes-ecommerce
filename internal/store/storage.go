@@ -28,12 +28,14 @@ type Storage struct {
 	}
 	Categories interface {
 		Create(context.Context, *Category) error
+		GetAll(context.Context) ([]Category, error)
 	}
 	Products interface {
 		Create(context.Context, *Product) error
 		GetAll(context.Context) ([]Product, error)
 		GetById(context.Context, int64) (*Product, error)
 		GetAllByName(context.Context, string) ([]Product, error)
+		GetAllByCategoryID(context.Context, int64) ([]Product, error)
 		Delete(context.Context, int64) error
 		Update(context.Context, *Product) error
 	}

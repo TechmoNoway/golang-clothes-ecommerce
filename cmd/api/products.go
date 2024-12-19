@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
+	"github.com/go-chi/chi/v5"
 )
 
 type productKey string
@@ -13,6 +15,52 @@ const productCtx productKey = "product"
 
 func (app *application) getAllProductsHanler(w http.ResponseWriter, r *http.Request) {
 	products, err := app.store.Products.GetAll(r.Context())
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundResponse(w, r, err)
+			return
+		default:
+			app.internalServerError(w, r, err)
+			return
+		}
+	}
+
+	err = app.jsonResponse(w, http.StatusOK, products)
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
+
+}
+
+func (app *application) getAllProductsByNameHanler(w http.ResponseWriter, r *http.Request) {
+	productName := chi.URLParam(r, "name")
+	products, err := app.store.Products.GetAllByName(r.Context(), productName)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundResponse(w, r, err)
+			return
+		default:
+			app.internalServerError(w, r, err)
+			return
+		}
+	}
+
+	err = app.jsonResponse(w, http.StatusOK, products)
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
+
+}
+
+func (app *application) getAllProductsByCategoryIDHanler(w http.ResponseWriter, r *http.Request) {
+	categoryID, err := strconv.ParseInt(chi.URLParam(r, "categoryID"), 10, 64)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
+	products, err := app.store.Products.GetAllByCategoryID(r.Context(), categoryID)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
