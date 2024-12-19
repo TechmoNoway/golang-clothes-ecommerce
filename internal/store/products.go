@@ -7,16 +7,17 @@ import (
 )
 
 type Product struct {
-	ID          int64  `json:"id"`
-	ProductName string `json:"product_name"`
-	Description string `json:"description"`
-	Price       int64  `json:"price"`
-	Stock       int64  `json:"stock"`
-	Size        string `json:"size"`
-	Color       string `json:"color"`
-	CategoryID  int64  `json:"category_id"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	ID          int64    `json:"id"`
+	ProductName string   `json:"product_name"`
+	Description string   `json:"description"`
+	Price       int64    `json:"price"`
+	Stock       int64    `json:"stock"`
+	Size        string   `json:"size"`
+	Color       string   `json:"color"`
+	CategoryID  int64    `json:"category_id"`
+	CreatedAt   string   `json:"created_at"`
+	UpdatedAt   string   `json:"updated_at"`
+	Category    Category `json:"category"`
 }
 
 type ProductStore struct {
@@ -54,9 +55,9 @@ func (s *ProductStore) Create(ctx context.Context, product *Product) error {
 func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
+		SELECT products.id, product_name, description, price, stock, size, color, products.created_at, products.updated_at, categories.*
 		FROM products
-		WHERE 1 = 1 
+		JOIN categories ON (products.category_id = categories.id)
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -81,9 +82,11 @@ func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 			&product.Stock,
 			&product.Size,
 			&product.Color,
-			&product.CategoryID,
 			&product.CreatedAt,
 			&product.UpdatedAt,
+			&product.Category.ID,
+			&product.Category.CategoryName,
+			&product.Category.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -92,13 +95,13 @@ func (s *ProductStore) GetAll(ctx context.Context) ([]Product, error) {
 	}
 
 	return productList, err
-
 }
 
 func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, error) {
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, category_id,created_at, updated_at 
+		SELECT products.id, product_name, description, price, stock, size, color, products.created_at, products.updated_at, categories.*
 		FROM products
+		JOIN categories ON (products.category_id = categories.id)
 		WHERE id = $1 
 	`
 
@@ -119,9 +122,11 @@ func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, 
 		&product.Stock,
 		&product.Size,
 		&product.Color,
-		&product.CategoryID,
 		&product.CreatedAt,
 		&product.UpdatedAt,
+		&product.Category.ID,
+		&product.Category.CategoryName,
+		&product.Category.CreatedAt,
 	)
 	if err != nil {
 		switch err {
@@ -137,15 +142,16 @@ func (s *ProductStore) GetById(ctx context.Context, productID int64) (*Product, 
 
 func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]Product, error) {
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
+		SELECT products.id, product_name, description, price, stock, size, color, products.created_at, products.updated_at, categories.*
 		FROM products
+		JOIN categories ON (products.category_id = categories.id)
 		WHERE product_name ILIKE $1
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	productName = "%" + productName + "%"
+	productName = "" + productName + "%"
 
 	rows, err := s.db.QueryContext(ctx, query, productName)
 	if err != nil {
@@ -166,6 +172,11 @@ func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]
 			&product.Stock,
 			&product.Size,
 			&product.Color,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+			&product.Category.ID,
+			&product.Category.CategoryName,
+			&product.Category.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -180,8 +191,9 @@ func (s *ProductStore) GetAllByName(ctx context.Context, productName string) ([]
 
 func (s *ProductStore) GetAllByCategoryID(ctx context.Context, categoryID int64) ([]Product, error) {
 	query := `
-		SELECT id, product_name, description, price, stock, size, color, category_id, created_at, updated_at 
-		FROM products p
+		SELECT products.id, product_name, description, price, stock, size, color, products.created_at, products.updated_at, categories.*
+		FROM products
+		JOIN categories ON (products.category_id = categories.id)
 		WHERE category_id = $1 
 	`
 
@@ -208,9 +220,11 @@ func (s *ProductStore) GetAllByCategoryID(ctx context.Context, categoryID int64)
 			&product.Stock,
 			&product.Size,
 			&product.Color,
-			&product.CategoryID,
 			&product.CreatedAt,
 			&product.UpdatedAt,
+			&product.Category.ID,
+			&product.Category.CategoryName,
+			&product.Category.CreatedAt,
 		)
 		if err != nil {
 			return nil, err

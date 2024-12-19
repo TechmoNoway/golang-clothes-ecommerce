@@ -50,7 +50,7 @@ func (app *application) mount() *chi.Mux {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
-			r.Get("/health", app.healthCheckHanler)
+			r.Get("/health", app.healthCheckHandler)
 
 			r.Route("/users", func(r chi.Router) {
 				r.Route("/getUserById/{userID}", func(r chi.Router) {
@@ -67,18 +67,12 @@ func (app *application) mount() *chi.Mux {
 			})
 
 			r.Route("/products", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					fmt.Fprintln(w, "This is products api")
-				})
-				r.Get("/getAllProducts", app.getAllProductsHanler)
-				r.Route("/getAllProductsByName/{name}", func(r chi.Router) {
-					r.Get("/", app.getAllProductsByNameHanler)
-				})
-				r.Route("/getAllProductsByCategoryID/{categoryID}", func(r chi.Router) {
-					r.Get("/", app.getAllProductsByCategoryIDHanler)
-				})
-				r.Post("/createProduct", app.createProductHanler)
-				r.Post("/updateProduct", app.updateProductHanler)
+				r.Get("/getAllProducts", app.getAllProductsHandler)
+				r.Get("/getAllProductsByName", app.getAllProductsByNameHandler)
+				r.Get("/getAllProductsByCategoryID", app.getAllProductsByCategoryIDHandler)
+				r.Post("/createProduct", app.createProductHandler)
+				r.Post("/updateProduct", app.updateProductHandler)
+				r.Post("/deleteProduct", app.deleteProductHandler)
 			})
 
 			r.Route("/orders", func(r chi.Router) {
@@ -88,7 +82,8 @@ func (app *application) mount() *chi.Mux {
 			})
 
 			r.Route("/categories", func(r chi.Router) {
-
+				r.Get("/getAllCategories", app.getAllCategoriesHandler)
+				r.Post("/createCategory", app.createCategoryHandler)
 			})
 
 			r.Route("/authentication", func(r chi.Router) {

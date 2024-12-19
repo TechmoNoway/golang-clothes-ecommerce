@@ -2,18 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
-	"github.com/go-chi/chi/v5"
 )
 
 type productKey string
 
 const productCtx productKey = "product"
 
-func (app *application) getAllProductsHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getAllProductsHandler(w http.ResponseWriter, r *http.Request) {
 	products, err := app.store.Products.GetAll(r.Context())
 	if err != nil {
 		switch err {
@@ -33,9 +33,10 @@ func (app *application) getAllProductsHanler(w http.ResponseWriter, r *http.Requ
 
 }
 
-func (app *application) getAllProductsByNameHanler(w http.ResponseWriter, r *http.Request) {
-	productName := chi.URLParam(r, "name")
+func (app *application) getAllProductsByNameHandler(w http.ResponseWriter, r *http.Request) {
+	productName := r.URL.Query().Get("name")
 	products, err := app.store.Products.GetAllByName(r.Context(), productName)
+	fmt.Println(products)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
@@ -54,8 +55,8 @@ func (app *application) getAllProductsByNameHanler(w http.ResponseWriter, r *htt
 
 }
 
-func (app *application) getAllProductsByCategoryIDHanler(w http.ResponseWriter, r *http.Request) {
-	categoryID, err := strconv.ParseInt(chi.URLParam(r, "categoryID"), 10, 64)
+func (app *application) getAllProductsByCategoryIDHandler(w http.ResponseWriter, r *http.Request) {
+	categoryID, err := strconv.ParseInt(r.URL.Query().Get("categoryID"), 10, 64)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 	}
@@ -89,7 +90,7 @@ type CreateProductPayload struct {
 	CategoryID  int64  `json:"category_id"`
 }
 
-func (app *application) createProductHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createProductHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreateProductPayload
 	err := readJSON(w, r, &payload)
 	if err != nil {
@@ -125,7 +126,6 @@ func (app *application) createProductHanler(w http.ResponseWriter, r *http.Reque
 		app.internalServerError(w, r, err)
 		return
 	}
-
 }
 
 type UpdateProductPayload struct {
@@ -138,7 +138,7 @@ type UpdateProductPayload struct {
 	CategoryID  *int64  `json:"category_id"`
 }
 
-func (app *application) updateProductHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Request) {
 	product := app.getProductFromCtx(r)
 
 	var payload UpdateProductPayload
@@ -196,7 +196,7 @@ func (app *application) updateProductHanler(w http.ResponseWriter, r *http.Reque
 
 }
 
-func (app *application) deleteProductHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) deleteProductHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
