@@ -18,4 +18,4 @@ seed:
 	@go run cmd/migrate/seed/main.go
 
 .PHONY: migrate-clean
-	@migrate -path $(MIGRATIONS_PATH) -database $(DB_ADDR) force 2
+	@migrate -path $(MIGRATIONS_PATH) -database $(DB_ADDR) force 2		

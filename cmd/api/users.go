@@ -18,7 +18,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		app.badRequestResponse(w, r, err)
 	}
 
-	user, err := app.getUserById(r.Context(), userID)
+	user, err := app.getUser(r.Context(), userID)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
@@ -37,7 +37,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := app.getAllUsers(r.Context())
+	users, err := app.store.Users.GetAll(r.Context())
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
@@ -55,11 +55,15 @@ func (app *application) getAllUsersHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (app *application) createUserHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *application) updateUserHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (app *application) deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 

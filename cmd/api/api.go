@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/auth"
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,14 +15,16 @@ import (
 )
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
+	config        config
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	authenticator auth.Authenticator
 }
 
 type config struct {
 	addr string
 	db   dbConfig
+	auth authConfig
 }
 
 type dbConfig struct {
@@ -29,6 +32,22 @@ type dbConfig struct {
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string
+}
+
+type authConfig struct {
+	basic basicConfig
+	token tokenConfig
+}
+
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	iss    string
+}
+
+type basicConfig struct {
+	user string
+	pass string
 }
 
 func (app *application) mount() *chi.Mux {
@@ -86,8 +105,8 @@ func (app *application) mount() *chi.Mux {
 				r.Post("/createCategory", app.createCategoryHandler)
 			})
 
-			r.Route("/authentication", func(r chi.Router) {
-
+			r.Route("/auth", func(r chi.Router) {
+				
 			})
 
 		})
