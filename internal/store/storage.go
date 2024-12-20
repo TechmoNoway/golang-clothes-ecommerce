@@ -17,9 +17,10 @@ type Storage struct {
 		Create(context.Context, *Post) error
 	}
 	Users interface {
-		Create(context.Context, *sql.Tx, *User) error
+		Create(context.Context, *User) error
 		GetById(context.Context, int64) (*User, error)
 		GetAll(context.Context) ([]User, error)
+		GetByUsername(context.Context, string) (*User, error)
 	}
 	Roles interface {
 		Create(context.Context, *Role) error

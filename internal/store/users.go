@@ -33,10 +33,10 @@ type UserStore struct {
 	db *sql.DB
 }
 
-func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
+func (s *UserStore) Create(ctx context.Context, user *User) error {
 	query := `
-		INSERT INTO users (username, email, password, avatar_url, first_name, last_name, phone, address, role_id) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO users (username, email, password, first_name, last_name, phone, address, role_id) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at
 	`
 
@@ -60,7 +60,6 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		user.Username,
 		user.Email,
 		hash,
-		user.AvatarUrl,
 		user.FirstName,
 		user.LastName,
 		user.Phone,
@@ -120,7 +119,50 @@ func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 	}
 
 	return user, nil
+}
 
+func (s *UserStore) GetByUsername(ctx context.Context, username string) (*User, error) {
+	query := `
+		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
+		FROM users
+		JOIN roles ON (users.role.id = roles.id) 
+		WHERE users.username = $1
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	user := &User{}
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		username,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.AvatarUrl,
+		&user.FirstName,
+		&user.LastName,
+		&user.Phone,
+		&user.Address,
+		&user.CreatedAt,
+		&user.Role.ID,
+		&user.Role.Name,
+		&user.Role.Description,
+		&user.Role.Level,
+	)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return user, nil
 }
 
 func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
@@ -203,3 +245,10 @@ func (s *UserStore) Update(ctx context.Context, tx *sql.Tx, user *User) error {
 
 	return nil
 }
+
+
+
+
+
+
+
