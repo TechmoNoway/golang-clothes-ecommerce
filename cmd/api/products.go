@@ -30,7 +30,6 @@ func (app *application) getAllProductsHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		app.internalServerError(w, r, err)
 	}
-
 }
 
 func (app *application) getAllProductsByNameHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +51,6 @@ func (app *application) getAllProductsByNameHandler(w http.ResponseWriter, r *ht
 	if err != nil {
 		app.internalServerError(w, r, err)
 	}
-
 }
 
 func (app *application) getAllProductsByCategoryIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,7 +75,6 @@ func (app *application) getAllProductsByCategoryIDHandler(w http.ResponseWriter,
 	if err != nil {
 		app.internalServerError(w, r, err)
 	}
-
 }
 
 type CreateProductPayload struct {
@@ -129,8 +126,8 @@ func (app *application) createProductHandler(w http.ResponseWriter, r *http.Requ
 }
 
 type UpdateProductPayload struct {
-	ProductName *string `json"product_name" validate:"omitempty,max=100"`
-	Description *string `json"description" validate:"omitempty,max=1000"`
+	ProductName *string `json:"product_name" validate:"omitempty,max=100"`
+	Description *string `json:"description" validate:"omitempty,max=1000"`
 	Price       *int64  `json:"price"`
 	Stock       *int64  `json:"stock"`
 	Size        *string `json:"size"`

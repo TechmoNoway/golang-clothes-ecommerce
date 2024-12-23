@@ -90,14 +90,15 @@ func (app *application) mount() *chi.Mux {
 				r.Get("/getAllProductsByName", app.getAllProductsByNameHandler)
 				r.Get("/getAllProductsByCategoryID", app.getAllProductsByCategoryIDHandler)
 				r.Post("/createProduct", app.createProductHandler)
-				r.Post("/updateProduct", app.updateProductHandler)
-				r.Post("/deleteProduct", app.deleteProductHandler)
+				r.Put("/updateProduct", app.updateProductHandler)
+				r.Delete("/deleteProduct", app.deleteProductHandler)
 			})
 
 			r.Route("/orders", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					fmt.Fprintln(w, "This is orders api")
-				})
+				r.Post("/createOrder", app.createOrderHandler)
+				r.Get("/getAllOrders", app.getAllOrdersHandler)
+				r.Get("/getAllOrdersByUserID", app.getAllOrdersByUserIDHandler)
+				r.Put("/updateOrder", app.updateOrderHandler)
 			})
 
 			r.Route("/categories", func(r chi.Router) {
