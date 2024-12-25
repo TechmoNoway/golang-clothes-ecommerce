@@ -76,7 +76,7 @@ func (app *application) mount() *chi.Mux {
 					r.Get("/", app.getUserHandler)
 				})
 				r.Get("/getAllUsers", app.getAllUsersHandler)
-
+				r.Put("/updateUser", app.updateUserHandler)
 			})
 
 			r.Route("/roles", func(r chi.Router) {
@@ -99,6 +99,11 @@ func (app *application) mount() *chi.Mux {
 				r.Get("/getAllOrders", app.getAllOrdersHandler)
 				r.Get("/getAllOrdersByUserID", app.getAllOrdersByUserIDHandler)
 				r.Put("/updateOrder", app.updateOrderHandler)
+			})
+
+			r.Route("/orderitems", func(r chi.Router) {
+				r.Get("/getAllOrderItems", app.getAllOrdersHandler)
+				r.Post("/createOrderItem", app.createOrderItemHandler)
 			})
 
 			r.Route("/categories", func(r chi.Router) {

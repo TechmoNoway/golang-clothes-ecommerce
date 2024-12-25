@@ -21,6 +21,8 @@ type Storage struct {
 		GetById(context.Context, int64) (*User, error)
 		GetAll(context.Context) ([]User, error)
 		GetByUsername(context.Context, string) (*User, error)
+		Update(context.Context, *User) error
+		DeleteByID(context.Context, int64) error
 	}
 	Roles interface {
 		Create(context.Context, *Role) error
@@ -46,6 +48,10 @@ type Storage struct {
 		GetAllByUserID(context.Context, int64) ([]Order, error)
 		Update(context.Context, *Order) error
 	}
+	OrderItems interface {
+		Create(context.Context, *OrderItem) error
+		GetAll(context.Context) ([]OrderItem, error)
+	}
 }
 
 func NewStorage(db *sql.DB) Storage {
@@ -56,5 +62,6 @@ func NewStorage(db *sql.DB) Storage {
 		Products:   &ProductStore{db},
 		Orders:     &OrderStore{db},
 		Categories: &CategoryStore{db},
+		OrderItems: &OrderItemStore{db},
 	}
 }

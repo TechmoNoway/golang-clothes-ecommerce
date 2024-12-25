@@ -16,7 +16,7 @@ func main() {
 	cfg := config{
 		addr: env.GetString("ADDR", ":4243"),
 		db: dbConfig{
-			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/clothesecommerce?sslmode=disable"),
+			addr:         env.GetString("DB_ADDR", "postgres://postgres:332003@localhost/clothesecommerce?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),

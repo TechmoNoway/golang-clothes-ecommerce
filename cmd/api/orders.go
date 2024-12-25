@@ -138,6 +138,10 @@ func (app *application) updateOrderHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
+func (app *application) deleteOrderHandler(w http.ResponseWriter, r *http.Request){
+	
+}
+
 func (app *application) getOrderFromCtx(r *http.Request) *store.Order {
 	order, _ := r.Context().Value(orderCtx).(*store.Order)
 	return order

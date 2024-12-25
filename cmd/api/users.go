@@ -59,7 +59,71 @@ func (app *application) createUserHandler(w http.ResponseWriter, r *http.Request
 
 }
 
+type UpdateUserPayload struct {
+	Username  *string `json:"username"`
+	Email     *string `json:"email"`
+	AvatarUrl *string `json:"avatar_url"`
+	FirstName *string `json:"first_name"`
+	LastName  *string `json:"last_name"`
+	Phone     *string `json:"phone"`
+	Address   *string `json:"address"`
+}
+
 func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.getUserFromContext(r)
+
+	var payload UpdateUserPayload
+	err := readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	err = Validate.Struct(payload)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if payload.Username != nil {
+		user.Username = *payload.Username
+	}
+
+	if payload.Email != nil {
+		user.Email = *payload.Email
+	}
+
+	if payload.AvatarUrl != nil {
+		user.AvatarUrl = *payload.AvatarUrl
+	}
+
+	if payload.FirstName != nil {
+		user.FirstName = *payload.FirstName
+	}
+
+	if payload.LastName != nil {
+		user.LastName = *payload.LastName
+	}
+
+	if payload.Phone != nil {
+		user.Phone = *payload.Phone
+	}
+
+	if payload.Address != nil {
+		user.Address = *payload.Address
+	}
+
+	ctx := r.Context()
+
+	err = app.store.Users.Update(ctx, user)
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
+
+	err = app.jsonResponse(w, http.StatusCreated, user)
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
 
 }
 
@@ -67,7 +131,7 @@ func (app *application) deleteUserHandler(w http.ResponseWriter, r *http.Request
 
 }
 
-func getUserFromContext(r *http.Request) *store.User {
+func (app *application) getUserFromContext(r *http.Request) *store.User {
 	user, _ := r.Context().Value(userCtx).(*store.User)
 	return user
 }

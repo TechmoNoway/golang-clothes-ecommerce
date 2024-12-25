@@ -214,7 +214,7 @@ func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
 	return userList, nil
 }
 
-func (s *UserStore) DeleteByID(ctx context.Context, tx *sql.Tx, userID int64) error {
+func (s *UserStore) DeleteByID(ctx context.Context, userID int64) error {
 	query := `DELETE FROM users WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -228,7 +228,7 @@ func (s *UserStore) DeleteByID(ctx context.Context, tx *sql.Tx, userID int64) er
 	return nil
 }
 
-func (s *UserStore) Update(ctx context.Context, tx *sql.Tx, user *User) error {
+func (s *UserStore) Update(ctx context.Context, user *User) error {
 	query := `
 	UPDATE users SET username, email, password, avatar_url, first_name, last_name, phone, address 
 	SET username = $1, email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
@@ -245,10 +245,3 @@ func (s *UserStore) Update(ctx context.Context, tx *sql.Tx, user *User) error {
 
 	return nil
 }
-
-
-
-
-
-
-
