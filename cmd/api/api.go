@@ -104,6 +104,7 @@ func (app *application) mount() *chi.Mux {
 			r.Route("/orderitems", func(r chi.Router) {
 				r.Get("/getAllOrderItems", app.getAllOrdersHandler)
 				r.Post("/createOrderItem", app.createOrderItemHandler)
+				r.Get("/getAllOrderItemsByOrderID", app.getAllOrderItemsByOrderIDHandler)
 			})
 
 			r.Route("/categories", func(r chi.Router) {

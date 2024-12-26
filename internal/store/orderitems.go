@@ -85,6 +85,45 @@ func (s *OrderItemStore) GetAll(ctx context.Context) ([]OrderItem, error) {
 	return orderItemList, err
 }
 
+func (s *OrderItemStore) GetAllByOrderID(ctx context.Context, orderID int64) ([]OrderItem, error) {
+	query := `
+		SELECT id, order_id, product_id, quantity, price, created_at
+		FROM order_items
+		HWERE order_id = $1
+	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 
+	defer cancel()
 
+	rows, err := s.db.QueryContext(ctx, query, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows.Close()
+
+	var orderItemList []OrderItem
+
+	for rows.Next() {
+		var orderItem OrderItem
+
+		err := rows.Scan(
+			&orderItem.ID,
+			&orderItem.OrderID,
+			&orderItem.ProductID,
+			&orderItem.Quantity,
+			&orderItem.Price,
+			&orderItem.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		orderItemList = append(orderItemList, orderItem)
+
+	}
+
+	return orderItemList, nil
+}

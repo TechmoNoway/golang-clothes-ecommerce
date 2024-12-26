@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
 )
@@ -36,6 +37,31 @@ type CreateOrderItemPayload struct {
 	ProductID int64 `json:"product_id"`
 	Quantity  int64 `json:"quantity"`
 	Price     int64 `json:"price"`
+}
+
+func (app *application) getAllOrderItemsByOrderIDHandler(w http.ResponseWriter, r *http.Request) {
+	orderID, err := strconv.ParseInt(r.URL.Query().Get("orderID"), 10, 64)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	orderItems, err := app.store.OrderItems.GetAllByOrderID(r.Context(), orderID)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.notFoundResponse(w, r, err)
+			return
+		default:
+			app.internalServerError(w, r, err)
+			return
+		}
+	}
+
+	err = app.jsonResponse(w, http.StatusOK, orderItems)
+	if err != nil {
+		app.internalServerError(w, r, err)
+	}
 }
 
 func (app *application) createOrderItemHandler(w http.ResponseWriter, r *http.Request) {

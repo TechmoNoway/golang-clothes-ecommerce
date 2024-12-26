@@ -51,6 +51,7 @@ type Storage struct {
 	OrderItems interface {
 		Create(context.Context, *OrderItem) error
 		GetAll(context.Context) ([]OrderItem, error)
+		GetAllByOrderID(context.Context, int64) ([]OrderItem, error)
 	}
 }
 
