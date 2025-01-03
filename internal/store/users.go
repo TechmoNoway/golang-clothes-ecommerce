@@ -230,8 +230,8 @@ func (s *UserStore) DeleteByID(ctx context.Context, userID int64) error {
 
 func (s *UserStore) Update(ctx context.Context, user *User) error {
 	query := `
-	UPDATE users SET username, email, password, avatar_url, first_name, last_name, phone, address 
-	SET username = $1, email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
+		UPDATE users SET username, email, password, avatar_url, first_name, last_name, phone, address 
+		SET username = $1, email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
