@@ -4,10 +4,12 @@ import (
 	"log"
 	"time"
 
+	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/auth"
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/db"
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/env"
 	"github.com/TechmoNoway/golang-clothes-ecommerce/internal/store"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -34,28 +36,40 @@ func main() {
 		},
 	}
 
+	// Logger
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	// Main Database
 	db, err := db.New(
 		cfg.db.addr,
 		cfg.db.maxOpenConns,
 		cfg.db.maxIdleConns,
 		cfg.db.maxIdleTime,
 	)
-
-	store := store.NewStorage(db)
-
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal(err)
 	}
 
 	defer db.Close()
-	log.Print("database connection pool established")
+	logger.Info("database connection pool established")
+
+	// Authenticator
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss,
+	)
+
+	store := store.NewStorage(db)
 
 	app := &application{
-		config: cfg,
-		store:  store,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		authenticator: jwtAuthenticator,
 	}
 
 	mux := app.mount()
 	log.Fatal(app.run(mux))
-
 }

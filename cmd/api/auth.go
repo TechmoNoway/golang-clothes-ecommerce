@@ -120,9 +120,6 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 	fmt.Println(user)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password))
-	fmt.Println("Get compare password error")
-
-	fmt.Println(err)
 	if err != nil {
 		app.unauthorizedBasicErrorResponse(w, r, err)
 		return
@@ -137,7 +134,10 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 		"aud": app.config.auth.token.iss,
 	}
 
+	fmt.Println(claims)
+
 	token, err := app.authenticator.GenerateToken(claims)
+	fmt.Print(token)
 	fmt.Println("Generate token err")
 	fmt.Println(err)
 	if err != nil {
