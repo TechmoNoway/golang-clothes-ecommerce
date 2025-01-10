@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -36,6 +37,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	err = Validate.Struct(payload)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
 	}
 
 	user := &store.User{
@@ -77,6 +79,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	err = app.jsonResponse(w, http.StatusCreated, userWithToken)
 	if err != nil {
+		fmt.Println(err)
 		app.internalServerError(w, r, err)
 	}
 
@@ -102,6 +105,8 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	user, err := app.store.Users.GetByUsername(r.Context(), payload.Username)
+	fmt.Println("Get username error")
+	fmt.Println(err)
 	if err != nil {
 		switch err {
 		case store.ErrNotFound:
@@ -112,7 +117,12 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Println(user)
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password))
+	fmt.Println("Get compare password error")
+
+	fmt.Println(err)
 	if err != nil {
 		app.unauthorizedBasicErrorResponse(w, r, err)
 		return
@@ -123,17 +133,22 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 		"exp": time.Now().Add(app.config.auth.token.exp).Unix(),
 		"iat": time.Now().Unix(),
 		"nbf": time.Now().Unix(),
+		"iss": app.config.auth.token.iss,
 		"aud": app.config.auth.token.iss,
 	}
 
 	token, err := app.authenticator.GenerateToken(claims)
+	fmt.Println("Generate token err")
+	fmt.Println(err)
 	if err != nil {
 		app.internalServerError(w, r, err)
+		return
 	}
+	fmt.Print(token)
 
 	err = app.jsonResponse(w, http.StatusCreated, token)
+	fmt.Println(err)
 	if err != nil {
 		app.internalServerError(w, r, err)
 	}
-
 }

@@ -13,13 +13,14 @@ type JWTAuthenticator struct {
 }
 
 func NewJWTAuthenticator(secret, aud, iss string) *JWTAuthenticator {
-	return &JWTAuthenticator{secret, aud, iss}
+	return &JWTAuthenticator{secret, iss, aud}
 }
 
 func (a *JWTAuthenticator) GenerateToken(claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte(a.secret))
+	fmt.Println(tokenString)
 	if err != nil {
 		return "", err
 	}
@@ -29,8 +30,7 @@ func (a *JWTAuthenticator) GenerateToken(claims jwt.Claims) (string, error) {
 
 func (a *JWTAuthenticator) ValidateToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(t *jwt.Token) (any, error) {
-		_, ok := t.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method %v", t.Header["alg"])
 		}
 
@@ -41,5 +41,4 @@ func (a *JWTAuthenticator) ValidateToken(token string) (*jwt.Token, error) {
 		jwt.WithIssuer(a.aud),
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)
-
 }

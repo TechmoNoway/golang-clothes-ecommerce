@@ -94,7 +94,8 @@ func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if payload.AvatarUrl != nil {
-		user.AvatarUrl = *payload.AvatarUrl
+		//TODO: Avatar String null fix
+		user.AvatarUrl = payload.AvatarUrl
 	}
 
 	if payload.FirstName != nil {

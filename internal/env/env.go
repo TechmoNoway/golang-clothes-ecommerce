@@ -1,7 +1,6 @@
 package env
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 )
@@ -11,8 +10,6 @@ func GetString(key string, fallback string) string {
 	if !ok {
 		return fallback
 	}
-
-	fmt.Println(val)
 
 	return val
 }

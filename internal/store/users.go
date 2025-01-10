@@ -10,18 +10,18 @@ import (
 )
 
 type User struct {
-	ID        int64  `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"-"`
-	AvatarUrl string `json:"avatar_url"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Phone     string `json:"phone"`
-	Address   string `json:"address"`
-	RoleID    int64  `json:"role_id"`
-	Role      Role   `json:"role"`
-	CreatedAt string `json:"created_at"`
+	ID        int64   `json:"id"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	Password  string  `json:"-"`
+	AvatarUrl *string `json:"avatar_url"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	Phone     string  `json:"phone"`
+	Address   string  `json:"address"`
+	RoleID    int64   `json:"role_id"`
+	Role      Role    `json:"role"`
+	CreatedAt string  `json:"created_at"`
 }
 
 var (
@@ -125,8 +125,8 @@ func (s *UserStore) GetByUsername(ctx context.Context, username string) (*User, 
 	query := `
 		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
-		JOIN roles ON (users.role.id = roles.id) 
-		WHERE users.username = $1
+		JOIN roles ON (users.role_id = roles.id) 
+		WHERE username = $1
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)

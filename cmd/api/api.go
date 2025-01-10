@@ -72,7 +72,7 @@ func (app *application) mount() *chi.Mux {
 			r.Get("/health", app.healthCheckHandler)
 
 			r.Route("/users", func(r chi.Router) {
-				r.Route("/getUserById/{userID}", func(r chi.Router) {
+				r.Route("/getUserByID/{userID}", func(r chi.Router) {
 					r.Get("/", app.getUserHandler)
 				})
 				r.Get("/getAllUsers", app.getAllUsersHandler)
