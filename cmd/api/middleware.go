@@ -44,11 +44,11 @@ func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
 				return
 			}
 
-			username := app.config.auth.basic.user
+			email := app.config.auth.basic.user
 			pass := app.config.auth.basic.pass
 
 			creds := strings.SplitN(string(decoded), ":", 2)
-			if len(creds) != 2 || creds[0] != username || creds[1] != pass {
+			if len(creds) != 2 || creds[0] != email || creds[1] != pass {
 				app.unauthorizedBasicErrorResponse(w, r, fmt.Errorf("invalid credentials"))
 				return
 

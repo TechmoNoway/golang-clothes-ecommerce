@@ -60,7 +60,6 @@ func (app *application) createUserHandler(w http.ResponseWriter, r *http.Request
 }
 
 type UpdateUserPayload struct {
-	Username  *string `json:"username"`
 	Email     *string `json:"email"`
 	AvatarUrl *string `json:"avatar_url"`
 	FirstName *string `json:"first_name"`
@@ -83,10 +82,6 @@ func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
-	}
-
-	if payload.Username != nil {
-		user.Username = *payload.Username
 	}
 
 	if payload.Email != nil {

@@ -11,7 +11,6 @@ import (
 
 type User struct {
 	ID        int64   `json:"id"`
-	Username  string  `json:"username"`
 	Email     string  `json:"email"`
 	Password  string  `json:"-"`
 	AvatarUrl *string `json:"avatar_url"`
@@ -25,8 +24,7 @@ type User struct {
 }
 
 var (
-	ErrDuplicateEmail    = errors.New("a user with that email already exists")
-	ErrDuplicateUsername = errors.New("a user with that username already exists")
+	ErrDuplicateEmail = errors.New("a user with that email already exists")
 )
 
 type UserStore struct {
@@ -35,7 +33,7 @@ type UserStore struct {
 
 func (s *UserStore) Create(ctx context.Context, user *User) error {
 	query := `
-		INSERT INTO users (username, email, password, first_name, last_name, phone, address, role_id) 
+		INSERT INTO users (email, password, first_name, last_name, phone, address, role_id) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at
 	`
@@ -57,7 +55,6 @@ func (s *UserStore) Create(ctx context.Context, user *User) error {
 	err = s.db.QueryRowContext(
 		ctx,
 		query,
-		user.Username,
 		user.Email,
 		hash,
 		user.FirstName,
@@ -79,7 +76,7 @@ func (s *UserStore) Create(ctx context.Context, user *User) error {
 
 func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 	query := `
-		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
+		SELECT users.id, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
 		JOIN roles ON (users.role.id = roles.id) 
 		WHERE users.id = $1
@@ -95,7 +92,6 @@ func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 		userID,
 	).Scan(
 		&user.ID,
-		&user.Username,
 		&user.Email,
 		&user.Password,
 		&user.AvatarUrl,
@@ -121,12 +117,12 @@ func (s *UserStore) GetById(ctx context.Context, userID int64) (*User, error) {
 	return user, nil
 }
 
-func (s *UserStore) GetByUsername(ctx context.Context, username string) (*User, error) {
+func (s *UserStore) GetByEmail(ctx context.Context, email string) (*User, error) {
 	query := `
-		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
+		SELECT users.id, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
 		JOIN roles ON (users.role_id = roles.id) 
-		WHERE username = $1
+		WHERE email = $1
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
@@ -136,10 +132,9 @@ func (s *UserStore) GetByUsername(ctx context.Context, username string) (*User, 
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
-		username,
+		email,
 	).Scan(
 		&user.ID,
-		&user.Username,
 		&user.Email,
 		&user.Password,
 		&user.AvatarUrl,
@@ -168,7 +163,7 @@ func (s *UserStore) GetByUsername(ctx context.Context, username string) (*User, 
 func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
 
 	query := `
-		SELECT users.id, username, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
+		SELECT users.id, email, password, avatar_url, first_name, last_name, phone, address, created_at, roles.*
 		FROM users
 		JOIN roles ON (users.role_id = roles.id) 
 		WHERE 1 = 1
@@ -190,7 +185,6 @@ func (s *UserStore) GetAll(ctx context.Context) ([]User, error) {
 		var newUser User
 		err := rows.Scan(
 			&newUser.ID,
-			&newUser.Username,
 			&newUser.Email,
 			&newUser.Password,
 			&newUser.AvatarUrl,
@@ -230,15 +224,15 @@ func (s *UserStore) DeleteByID(ctx context.Context, userID int64) error {
 
 func (s *UserStore) Update(ctx context.Context, user *User) error {
 	query := `
-		UPDATE users SET username, email, password, avatar_url, first_name, last_name, phone, address 
-		SET username = $1, email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
+		UPDATE users SET email, password, avatar_url, first_name, last_name, phone, address 
+		SET email = $2, avatar_url = $3, first_name = $4, last_name = $5, phone = $5, address = $6
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 
 	defer cancel()
 
-	_, err := s.db.ExecContext(ctx, query, user.Username, user.Email, user.AvatarUrl, user.FirstName, user.LastName, user.Phone, user.Address)
+	_, err := s.db.ExecContext(ctx, query, user.Email, user.AvatarUrl, user.FirstName, user.LastName, user.Phone, user.Address)
 	if err != nil {
 		return err
 	}

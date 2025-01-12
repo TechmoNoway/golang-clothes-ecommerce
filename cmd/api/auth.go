@@ -12,7 +12,6 @@ import (
 )
 
 type RegisterUserPayload struct {
-	Username  string `json:"username" validate:"required,max=100"`
 	Email     string `json:"email" validate:"required,email,max=255"`
 	Password  string `json:"password" validate:"required,min=3,max=72"`
 	FirstName string `json:"first_name" validate:"required,min=3,max=72"`
@@ -41,7 +40,6 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	user := &store.User{
-		Username:  payload.Username,
 		Email:     payload.Email,
 		Password:  payload.Password,
 		FirstName: payload.FirstName,
@@ -64,8 +62,6 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		switch err {
 		case store.ErrDuplicateEmail:
 			app.badRequestResponse(w, r, err)
-		case store.ErrDuplicateUsername:
-			app.badRequestResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)
 		}
@@ -86,7 +82,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 }
 
 type LoginUserTokenPayload struct {
-	Username string `json:"username" validate:"required,max=255"`
+	Email    string `json:"email" validate:"required,max=255"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
 }
 
@@ -104,8 +100,8 @@ func (app *application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	user, err := app.store.Users.GetByUsername(r.Context(), payload.Username)
-	fmt.Println("Get username error")
+	user, err := app.store.Users.GetByEmail(r.Context(), payload.Email)
+	fmt.Println("Get email error")
 	fmt.Println(err)
 	if err != nil {
 		switch err {

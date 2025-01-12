@@ -20,7 +20,7 @@ type Storage struct {
 		Create(context.Context, *User) error
 		GetById(context.Context, int64) (*User, error)
 		GetAll(context.Context) ([]User, error)
-		GetByUsername(context.Context, string) (*User, error)
+		GetByEmail(context.Context, string) (*User, error)
 		Update(context.Context, *User) error
 		DeleteByID(context.Context, int64) error
 	}
