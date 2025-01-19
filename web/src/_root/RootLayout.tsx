@@ -4,11 +4,11 @@ const RootLayout = () => {
   return (
     <>
       <div>
-        <div className="w-full md:flex">
+        <div className="w-full h-full md:flex">
           {/* <Topbar />
           <LeftSidebar /> */}
 
-          <section className="flex flex-1 h-full">
+          <section className="flex flex-1 w-full h-full">
             <Outlet />
           </section>
 

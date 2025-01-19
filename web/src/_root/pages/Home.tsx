@@ -2,7 +2,7 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <section className="bg-black text-white relative">
+    <section className="bg-black text-white relative w-full h-full">
       {/* Hero Content */}
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <div className="inline-block bg-red-600 text-xs text-white uppercase px-3 py-1 rounded">
@@ -22,7 +22,7 @@ const HeroSection = () => {
       {/* Background Image */}
       <div className="absolute inset-0 opacity-40">
         <img
-          src="/path-to-background.jpg"
+          src="https://i.ibb.co/QfHYCm5/banner.jpg"
           alt="Background"
           className="w-full h-full object-cover"
         />
